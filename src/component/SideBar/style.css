@@ -1,0 +1,16 @@
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 20%;
+  z-index: 10000;
+  background-color: black;
+  height: 400px;
+  width: 100px;
+  font-size: 30px;
+  color: white;
+  font-family:'Times New Roman', Times, serif;
+  writing-mode: vertical-lr;
+  display: flex;
+  justify-content: center; 
+  align-items: center; 
+}

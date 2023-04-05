@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { createRoot } from "react-dom/client";
 import { SideBar } from "./component/SideBar/SideBar";
 import ReactDOM from "react-dom";
 
@@ -12,7 +11,7 @@ const Main = () => {
 }
 
 const app = document.createElement('div');
-app.id = 'my-extension-root';
+app.id = 'extension-root';
 document.body.appendChild(app);
 
-ReactDOM.render(<SideBar />, app);
+ReactDOM.render(<Main />, app);

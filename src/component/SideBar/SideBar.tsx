@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { FaAngleDoubleLeft } from 'react-icons/fa'
-import './style.css'
+import { FaAngleDoubleLeft } from 'react-icons/fa';
+import './style.css';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+
 
 export const SideBar = () => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -22,6 +24,7 @@ export const SideBar = () => {
           <p>Terminal3</p>
           <FaAngleDoubleLeft onClick={handleClick} style={{cursor: "pointer"}}/>
         </div>
+        <ConnectButton/>
       </div>: <></>}
     </div>
     </>

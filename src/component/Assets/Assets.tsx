@@ -3,11 +3,17 @@ import './Assets.css'
 
 export const Assets =(props: {assets: any}) =>{
   const [type, setType] = useState("NFT")
+  useEffect(()=> {
+    console.log(props?.assets)
+  }, [])
   const handleError = event => {
     event.target.src = "https://terminal3.s3.us-west-1.amazonaws.com/imgs/loading.gif";
   };
-  const handleClick = (event) => {
-    console.log(event)
+  function handleClick(assetstype) {
+    return function(event) {
+      event.preventDefault();
+      setType(assetstype)
+    }
   }
   const renderImageRows = () => {
     let rawData = props?.assets?.nft?.content;
@@ -40,16 +46,16 @@ export const Assets =(props: {assets: any}) =>{
       Assets
     </div>
     <div className="table-tabs">
-      <p onClick={handleClick}>
+      <p onClick={handleClick("TOKEN")}>
         Token
       </p>
-      <p onClick={handleClick}>
+      <p onClick={handleClick("NFT")}>
         NFT
       </p>
     </div>
     {type == "NFT" ?
     <table>
-      renderImageRows():
+      {renderImageRows()}
     </table>:
     <table>
        <thead>
@@ -59,10 +65,10 @@ export const Assets =(props: {assets: any}) =>{
           </tr>
         </thead>
         <tbody>
-          {props.assets.token.map((item, index) => (
+          {props?.assets?.token?.map((item, index) => (
             <tr key={index}>
               <td>{item.symbol}</td>
-              <td>{item.balance.toNumber()}</td>
+              <td>{parseInt(item.balance)}</td>
             </tr>
           ))}
         </tbody>

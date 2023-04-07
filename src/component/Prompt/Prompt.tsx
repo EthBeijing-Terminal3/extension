@@ -67,7 +67,7 @@ export const Prompt = (): JSX.Element => {
         apiClient.chat(global.accountAddress, value).then((res) => {
           setMessages([...messages, value, res])
           // TODO: transfer actions into tx object
-          judge({res}).then((response)=>{
+          judge(res).then((response)=>{
             setLoading(false)
             console.log(response)
           })

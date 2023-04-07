@@ -25,16 +25,24 @@ const abi = [
 		stateMutability: "view",
 		type: "function",
 	},
+	{
+		inputs: [{ name: "who", type: "address" }],
+		name: "balanceOf",
+		outputs: [{ name: "", type: "uint256" }],
+		payable: false,
+		stateMutability: "view",
+		type: "function",
+	},
 ];
 interface params {
-	targetAddress?: string;  //收款人地址，如 "0xAFA573F3D14862c3D4Eedd4cef38097271950000"
-	number: number; // 发送金额，如 0.01
+	targetAddress?: string; //收款人地址，如 "0xAFA573F3D14862c3D4Eedd4cef38097271950000"
+	number: number | string; // 发送金额，如 0.01
 	token?: string; // 发送的代币合约地址，如果是发送eth则不填。
-  onStart?: () => any; // 开始回调，可用于开启loading等操作
-  onSuccess?: (tx: string) => any; // 成功回调，参数为交易哈希，可用于关闭loading并提示
-  onFail?: (reason: any) => any; // 失败回调，参数为失败原因，可用于关闭loading并提示
+	onStart?: () => any; // 开始回调，可用于开启loading等操作
+	onSuccess?: (tx: string) => any; // 成功回调，参数为交易哈希，可用于关闭loading并提示
+	onFail?: (reason: any) => any; // 失败回调，参数为失败原因，可用于关闭loading并提示
 }
-const transfer = async ({ targetAddress, number, token,onStart,onSuccess,onFail }: params) => {
+const transfer = async ({ targetAddress, number, token, onStart, onSuccess, onFail }: params) => {
 	const providerOptions = {
 		"custom-metamsk": {
 			display: {
@@ -69,35 +77,49 @@ const transfer = async ({ targetAddress, number, token,onStart,onSuccess,onFail 
 	let res = await provider?.provider?.enable();
 	let signer = provider.getSigner();
 	let address = await signer?.getAddress();
+
+
 	if (token) {
 		let contract = new ethers.Contract(token, abi, signer);
 		const decimals = await contract.decimals();
 		// How many tokens?
-		let numberOfTokens = ethers.utils.parseUnits(number + '', decimals.toNumber());
-		console.log(`numberOfTokens: ${numberOfTokens}`);
-
+		let numberOfTokens = ethers.utils.parseUnits(number + "", decimals.toNumber());
+		const balanceRes = await contract.balanceOf(address)
+		const balance = +ethers.utils.formatUnits(balanceRes,decimals)
+		console.log({balance})
+		if(balance < +number) {
+			return onFail?.('Insufficient Balance') 
+		}
 		// Send tokens
 		try {
-      onStart?.()
+			onStart?.();
 			const res = await contract.transfer(targetAddress, numberOfTokens);
 			const confirmations = await res.wait();
-      onSuccess?.(confirmations.transactionHash)
+			onSuccess?.(confirmations.transactionHash);
+			return confirmations.transactionHash
 		} catch (error) {
-			onFail?.(error)
+			onFail?.(error);
 		}
 	} else {
+		let balanceRes = await signer?.getBalance()
+		const balance = +ethers.utils.formatEther( balanceRes )
+		if(balance < +number) {
+			return onFail?.('Insufficient Balance') 
+		}
 		const tx = {
 			from: address,
 			to: targetAddress,
-			value: ethers.utils.parseEther(number + ''),
+			value: ethers.utils.parseEther(number + ""),
 		};
 
 		try {
-			const res = await signer.sendTransaction(tx)
-      const confirmations = await res.wait();
-      onSuccess?.(confirmations.transactionHash)
+			const res = await signer.sendTransaction(tx);
+			const confirmations = await res.wait();
+			onSuccess?.(confirmations.transactionHash);
+			return confirmations.transactionHash
 		} catch (error) {
-			onFail?.(error)
+			onFail?.(error);
+			
 		}
 	}
 };

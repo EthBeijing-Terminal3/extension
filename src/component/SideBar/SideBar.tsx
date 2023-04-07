@@ -11,14 +11,67 @@ import { ethers } from "ethers";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { GlobalsContext } from "../../globalContext";
+import apiClient from "../../service/api";
+import WarningBar from "../warningBar/WarningBar";
+
+const createKeccakHash = require('keccak')
+
+function toChecksumAddress (address) {
+  address = address.toLowerCase().replace('0x', '')
+  var hash = createKeccakHash('keccak256').update(address).digest('hex')
+  var ret = '0x'
+
+  for (var i = 0; i < address.length; i++) {
+    if (parseInt(hash[i], 16) >= 8) {
+      ret += address[i].toUpperCase()
+    } else {
+      ret += address[i]
+    }
+  }
+
+  return ret
+}
+
 export const SideBar = () => {
 
   const global = useContext(GlobalsContext);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isChat, setIsChat] = useState(false);
 
+  const [warning, setWarning] = useState(null);
+
+  useEffect(() => {
+    window.addEventListener('message', async (event) => {
+      if (event.data?.name === 'terminal-3') {
+        console.log({d: event.data})
+        const data = JSON.parse(event.data.payload);
+
+        console.log({d2: data});
+        if (data.requestType === "eth_sendTransaction") {
+          apiClient.transactionAnalysis(
+            'https://' + window.location.hostname,
+            data.payload.data,
+            data.payload.from,
+            data.payload.to,
+            data.payload.value,
+            data.payload.gas,
+            toChecksumAddress(data.payload.from),
+          ).then((res) => {
+            console.log({res});
+            setWarning(res);
+          });
+        }
+      }
+    });
+  }, [])
+
+  if (warning) {
+
+  }
+
   const handleClick = () => {
     setIsExpanded(!isExpanded);
+    setWarning(null);
   };
   const handleStartClick = async () => {
     const providerOptions = {
@@ -63,7 +116,8 @@ export const SideBar = () => {
 
   return (
     <>
-      <div className={`sidebar ${isExpanded ? 'expanded' : 'collapsed'}`}>
+      <div className={`sidebar ${isExpanded || warning ? 'expanded' : 'collapsed'}`}>
+        {!isExpanded && warning && <WarningBar data={warning} />}
         {isExpanded ?
           <></> :
           <div onClick={handleClick} className="toggle-div">

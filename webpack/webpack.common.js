@@ -9,12 +9,14 @@ module.exports = {
     entry: {
         popup: path.join(srcDir, 'popup.tsx'),
         options: path.join(srcDir, 'options.tsx'),
-        background: path.join(srcDir, 'background.ts'),
+        background: path.join(srcDir, 'scripts', 'background.ts'),
         content_script: path.join(srcDir, 'content_script.tsx'),
+        content: path.join(srcDir, 'scripts', 'index.ts'),
     },
     output: {
         path: path.join(__dirname, "../dist/js"),
         filename: "[name].js",
+        clean: true,
     },
     optimization: {
         splitChunks: {
@@ -27,9 +29,9 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.tsx?$/,
-                use: "ts-loader",
+                test: /\.(ts|tsx)$/,
                 exclude: /node_modules/,
+                loader: 'ts-loader',
             },
             {
                 test: /\.css$/,
@@ -56,6 +58,10 @@ module.exports = {
 
         new CopyPlugin({
             patterns: [{ from: ".", to: "../", context: "public" }],
+            options: {},
+        }),
+        new CopyPlugin({
+            patterns: [{ from: ".", to: "../js", context: "public_js" }],
             options: {},
         }),
     ]

@@ -61,6 +61,22 @@ class ApiClient {
     });
   };
 
+  public transactionAnalysis = async (originUrl: string, data: string, from: string, to: string, value: string, gas: string, userAccount: string): Promise<any> => {
+    return this.callApi<ContractAnalysis>({
+      url: `/transaction/analyze`,
+      method: 'POST',
+      requestData: {
+        origin_url: originUrl,
+        tx_data: data,
+        from,
+        to,
+        value,
+        gas,
+        user_account: userAccount
+      },
+    });
+  }
+
   public contractAnalyze = async (accountAddress: string, contractAddress: string, chainId: string): Promise<ContractAnalysis> => {
     return this.callApi<ContractAnalysis>({
       url: `/contract/analyze`,

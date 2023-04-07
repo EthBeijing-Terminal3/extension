@@ -77,6 +77,17 @@ class ApiClient {
     });
   }
 
+  public init = async (accountAddress: string, message: string): Promise<any> => {
+    return this.callApi<ChatReply>({
+      url: `/init`,
+      method: 'POST',
+      requestData: {
+        account_address: accountAddress,
+        message,
+      },
+    });
+  };
+
   public contractAnalyze = async (accountAddress: string, contractAddress: string, chainId: string): Promise<ContractAnalysis> => {
     return this.callApi<ContractAnalysis>({
       url: `/contract/analyze`,

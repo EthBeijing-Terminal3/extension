@@ -6,12 +6,16 @@ import { GlobalsContext } from "../../globalContext";
 import { Message } from "../Message/Message";
 import { getNFT } from "../../service/nft";
 import { getTOKEN } from "../../service/token";
+import { judge } from "../../service/operation";
 
 const CODE = [
   '/assets',
   '/history'
 ]
 
+const helloworld = {
+  Comment: "Hello! I am Terminal3, an all-in-one chat bot for web3 users. How can I assist you today?"
+}
 
 export const Prompt = (): JSX.Element => {
 
@@ -19,7 +23,7 @@ export const Prompt = (): JSX.Element => {
 
   const [value, setValue] = useState<string>('');
   const [isFocused, setIsFocused] = useState<boolean>(false);
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<any[]>([helloworld]);
   const [isCode, setIsCode] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -45,6 +49,7 @@ export const Prompt = (): JSX.Element => {
             assMessage.nft = res
           })
           await getTOKEN(global.accountAddress).then((res)=>{
+            console.log(res)
             assMessage.token = res
           })
           setMessages([...messages, value, {
@@ -52,6 +57,7 @@ export const Prompt = (): JSX.Element => {
             Action: "assets",
             Parameters: assMessage
           }]);
+          setLoading(false)
         } else 
         {
 
@@ -61,7 +67,12 @@ export const Prompt = (): JSX.Element => {
         apiClient.chat(global.accountAddress, value).then((res) => {
           setMessages([...messages, value, res])
           // TODO: transfer actions into tx object
-          console.log({chatres: res})
+          judge({res}).then((response)=>{
+            setLoading(false)
+            console.log(response)
+          })
+        }).catch((err)=> {
+          console.log(err);
           setLoading(false)
         })
       }
@@ -97,8 +108,13 @@ export const Prompt = (): JSX.Element => {
     setIsFocused(true);
   };
 
-  const clearMessage = (): void => {
-    setMessages([])
+  const clearMessage = async () => {
+    setLoading(true)
+    await apiClient.init(global.accountAddress, "").then((res) => {
+      console.log({chatres: res})
+      setMessages([helloworld])
+    })
+    setLoading(false)
   }
 
   function handleCode (code: string) {
@@ -130,7 +146,7 @@ export const Prompt = (): JSX.Element => {
       <ul>
         {messages.map((message, index) => (
           <li key={index}>
-            {index % 2 == 0 ? <Message index={index} message={message}/>:
+            {index % 2 == 1 ? <Message index={index} message={message}/>:
             <Message index={index} message={message?.Comment} back={{action: message?.Action, arg: message?.Parameters}}/>}
           </li>
         ))}

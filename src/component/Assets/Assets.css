@@ -1,0 +1,31 @@
+.assets-table{
+  width: 360px;
+  color: white;
+  font-family: 'Outfit', sans-serif;
+  margin-left: 20px;
+  margin-bottom: 10px;
+}
+.table-header{
+  position: relative;
+  color: white;
+  font-family: 'Outfit', sans-serif;
+  font-size: 20px;
+}
+.table-tabs{
+  position: relative;
+  display: flex;
+  justify-content: space-around;
+  width: 100px;
+  color: white;
+  font-family: 'Outfit', sans-serif;
+}
+
+.table-tabs p {
+  cursor: pointer;
+}
+
+.table-tabs p:hover {
+  color: #9e9797
+}
+
+

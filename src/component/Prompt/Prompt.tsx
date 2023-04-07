@@ -3,6 +3,14 @@ import './Prompt.css';
 import { AiOutlineMenu, AiOutlineSend} from 'react-icons/ai'
 import apiClient from '../../service/api';
 import { GlobalsContext } from "../../globalContext";
+import { Message } from "../Message/Message";
+import { getNFT } from "../../service/nft";
+import { getTOKEN } from "../../service/token";
+
+const CODE = [
+  '/assets',
+  '/history'
+]
 
 
 export const Prompt = (): JSX.Element => {
@@ -13,25 +21,51 @@ export const Prompt = (): JSX.Element => {
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [messages, setMessages] = useState([]);
   const [isCode, setIsCode] = useState<boolean>(false);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
+    if (textareaRef.current) {
+      textareaRef.current.focus();
     }
   }, []);
 
-  function handleFormSubmit() {
+  async function handleFormSubmit() {
+    let assMessage =  {
+      token: null,
+      nft: null
+    };
     if (value) {
       setMessages([...messages, value]);
-
+      setLoading(true)
       console.log({account: global.accountAddress, value})
-      apiClient.chat(global.accountAddress, value).then((res) => {
+      if (CODE.indexOf(value) != -1) {
+        if (value == "/assets") {
+          await getNFT(global.accountAddress).then((res)=> {
+            assMessage.nft = res
+          })
+          await getTOKEN(global.accountAddress).then((res)=>{
+            assMessage.token = res
+          })
+          setMessages([...messages, value, {
+            Comment: "Here is your assets 😊",
+            Action: "assets",
+            Parameters: assMessage
+          }]);
+        } else 
+        {
 
-        // TODO: transfer actions into tx object
-        console.log({chatres: res})
-      })
-
+        }
+      } else 
+      {
+        apiClient.chat(global.accountAddress, value).then((res) => {
+          setMessages([...messages, value, res])
+          // TODO: transfer actions into tx object
+          console.log({chatres: res})
+          setLoading(false)
+        })
+      }
+      textareaRef.current.scrollTop = 0;
       setValue('');
     }
   }
@@ -57,8 +91,8 @@ export const Prompt = (): JSX.Element => {
   };
 
   const handleClick = (): void => {
-    if (inputRef.current) {
-      inputRef.current.focus();
+    if (textareaRef.current) {
+      textareaRef.current.focus();
     }
     setIsFocused(true);
   };
@@ -77,8 +111,14 @@ export const Prompt = (): JSX.Element => {
 
   return (
     <div className='prompt-main'>
+      {loading && (
+        <div className="loading">
+          <img src="https://terminal3.s3.us-west-1.amazonaws.com/imgs/loading.gif" style={{width: "40px"}}/>
+          <span>Loading</span>
+        </div>
+      )}
       <div className='chat-header'>
-        <AiOutlineMenu style={{position:"absolute", left: "15", fontSize:"30", color:"#565656"}}/>
+        <AiOutlineMenu style={{position:"absolute", left: "15", fontSize:"30", color:"#565656", cursor:"pointer"}}/>
         <div className='account-info'>
         <div className='network'>
           Ethereum
@@ -90,10 +130,8 @@ export const Prompt = (): JSX.Element => {
       <ul>
         {messages.map((message, index) => (
           <li key={index}>
-            <div className='message-item'>
-              <img src={index%2 == 1 ? "https://terminal3.s3.us-west-1.amazonaws.com/imgs/Group+9.svg":"https://terminal3.s3.us-west-1.amazonaws.com/imgs/message-avatar.svg"} style={{paddingRight:"10px"}}/>
-              {message}
-            </div>
+            {index % 2 == 0 ? <Message index={index} message={message}/>:
+            <Message index={index} message={message?.Comment} back={{action: message?.Action, arg: message?.Parameters}}/>}
           </li>
         ))}
       </ul>
@@ -115,7 +153,7 @@ export const Prompt = (): JSX.Element => {
           rows={4}
           value={value}
           onBlur={handleBlur}
-          ref={inputRef}
+          ref={textareaRef}
           onChange={handleValueChange}
           typeof='text'
           onKeyDown={handleKeyDown}

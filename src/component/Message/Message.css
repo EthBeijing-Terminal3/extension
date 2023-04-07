@@ -1,0 +1,12 @@
+.message-item {
+  color: white;
+  padding-left: 10px;
+  display: flex;
+  align-items: center;
+  padding-bottom: 10px;
+  text-align: left
+}
+
+.message-main {
+   font-family: 'Outfit', sans-serif;
+}

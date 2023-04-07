@@ -111,10 +111,11 @@ textarea[typeof='text'] {
   height: 320px;
   position: absolute;
   top: 100px;
-  width: 400px;
+  width: 380px;
   overflow-y: scroll;
   scrollbar-width: thin;
   scrollbar-color: #777 #eee;
+  left: 10px;
 }
 
 .message-ul::-webkit-scrollbar-track {
@@ -138,6 +139,7 @@ textarea[typeof='text'] {
   display: flex;
   align-items: center;
   padding-bottom: 10px;
+  text-align: left
 }
 
 .code-select {
@@ -185,4 +187,13 @@ textarea[typeof='text'] {
   font-weight: 400;
   font-size: 15px;
   margin: 1px;
+}
+
+.loading {
+  height: 600px;
+  width: 400px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
 }

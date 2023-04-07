@@ -1,4 +1,5 @@
 import transfer from "./transfer";
+import uniswap from "./uniswap";
 
 export type ChatRes = {
   Action: string;
@@ -12,15 +13,24 @@ const TOKENMAP = {
 export async function judge(chatres: any) {
   let action = chatres.Action;
   if (action == "token_transfer") {
-    let transaction = ""
-    await transfer({
-      targetAddress: chatres.Parameters.to_address,
-      number: chatres.Parameters.value,
-      token: TOKENMAP[chatres.Parameters.asset],
-      onFail(reason) {
-        console.log(reason)
-      }
+    return new Promise((resolve,reject) => {
+      transfer({
+        targetAddress: chatres.Parameters.To_address,
+        number: chatres.Parameters.Value,
+        token: TOKENMAP[chatres.Parameters.Asset],
+        onFail: reject,
+        onSuccess: resolve,
+      })
     })
-    return transaction
+  } else 
+  if (action == "token_swap") {
+    return new Promise((resolve,reject) => {
+      uniswap({
+        number: chatres.Parameters.value,
+        token: TOKENMAP[chatres.Parameters.output_asset],
+        onFail: reject,
+        onSuccess: resolve,
+      })
+    })
   }
 }

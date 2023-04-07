@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import './Prompt.css';
 import { AiOutlineMenu, AiOutlineSend} from 'react-icons/ai'
+import { FaStar } from 'react-icons/fa'
+import { BsFillChatDotsFill } from 'react-icons/bs'
 import apiClient from '../../service/api';
 import { GlobalsContext } from "../../globalContext";
 import { Message } from "../Message/Message";
@@ -16,6 +18,11 @@ const CODE = [
 const helloworld = {
   Comment: "Hello! I am Terminal3, an all-in-one chat bot for web3 users. How can I assist you today?"
 }
+const goodprompt = [
+  "send 1 WETH to vitalik.eth",
+  "/assets",
+  "swap 1 WETH to 1ETH on uniswap"
+]
 
 export const Prompt = (): JSX.Element => {
 
@@ -26,6 +33,8 @@ export const Prompt = (): JSX.Element => {
   const [messages, setMessages] = useState<any[]>([helloworld]);
   const [isCode, setIsCode] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [isHistory, setIsHistory] = useState<boolean>(false);
+  const [historyList, setHistoryList] = useState<any[]>(goodprompt)
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -65,14 +74,17 @@ export const Prompt = (): JSX.Element => {
       } else 
       {
         apiClient.chat(global.accountAddress, value).then((res) => {
+          console.log(res)
           setMessages([...messages, value, res])
-          // TODO: transfer actions into tx object
-          judge(res).then((response)=>{
-            setLoading(false)
-            console.log(response)
-          })
+          return judge(res)
+        }).then((response)=>{
+          console.log(response)
+          setLoading(false)
         }).catch((err)=> {
           console.log(err);
+          setMessages([...messages, value, {
+            Comment: err
+          }]);
           setLoading(false)
         })
       }
@@ -125,16 +137,55 @@ export const Prompt = (): JSX.Element => {
     }
   }
 
+  const handleHistory = async () => {
+    if (isHistory == false) {
+    setLoading(true)
+    await apiClient.chat(global.accountAddress, "history").then((res) => {
+      console.log(res)
+      let newHistory = historyList
+      res.Parameters.map((item, index)=> {newHistory.push(item.content)})
+      console.log(newHistory)
+      setHistoryList(newHistory)
+      setLoading(false)
+    })
+  }
+  setIsHistory(!isHistory)
+}
+
+  function handleHistoryClick (item) {
+    return function(event) {
+      event.preventDefault();
+      setValue(item)
+      setIsHistory(false)
+    }
+  }
+
   return (
     <div className='prompt-main'>
+      {isHistory && (
+        <div className="history">
+          <div className="history-header">
+            Chat List
+          </div>
+          <div>
+            {historyList.map((item, index)=> (
+              <div key={index} className="prompt-history" onClick={handleHistoryClick(item)}>
+                {(index < 3)? 
+                <FaStar style={{color:"white", fontSize:"15px"}}/>:<BsFillChatDotsFill style={{color:"white", fontSize:"15px"}}/>}
+                <div className="prompt-history-text">{item}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       {loading && (
         <div className="loading">
           <img src="https://terminal3.s3.us-west-1.amazonaws.com/imgs/loading.gif" style={{width: "40px"}}/>
-          <span>Loading</span>
+          <span>Emmmm...</span>
         </div>
       )}
       <div className='chat-header'>
-        <AiOutlineMenu style={{position:"absolute", left: "15", fontSize:"30", color:"#565656", cursor:"pointer"}}/>
+        <AiOutlineMenu style={{position:"absolute", left: "15", fontSize:"30", color:"#565656", cursor:"pointer"}} onClick={handleHistory}/>
         <div className='account-info'>
         <div className='network'>
           Ethereum
@@ -147,7 +198,7 @@ export const Prompt = (): JSX.Element => {
         {messages.map((message, index) => (
           <li key={index}>
             {index % 2 == 1 ? <Message index={index} message={message}/>:
-            <Message index={index} message={message?.Comment} back={{action: message?.Action, arg: message?.Parameters}}/>}
+            <Message index={index} message={message?.Comment} back={{action: message?.Action, arg: message?.Parameters}} setValue={setValue}/>}
           </li>
         ))}
       </ul>

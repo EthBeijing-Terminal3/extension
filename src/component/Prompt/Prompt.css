@@ -133,22 +133,13 @@ textarea[typeof='text'] {
   overflow-y: scroll;
 }
 
-.message-item {
-  color: white;
-  padding-left: 10px;
-  display: flex;
-  align-items: center;
-  padding-bottom: 10px;
-  text-align: left
-}
-
 .code-select {
-  background: 000000;
+  background: #1A1A1A;
   position: absolute;
   left: 21px;
-  top: 315px;
+  top: 340px;
   width: 359px;
-  height: 122px;
+  height: 90px;
   border: 1px solid #333437;
   border-radius: 16px;
 }
@@ -159,11 +150,13 @@ textarea[typeof='text'] {
   padding:5px 5px;
   color: white;
   width: 346px;
-  height: 50px;
+  height: 40px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
+  margin-left: 10px;
+  margin-top: 2px;
 }
 
 .select-item:hover {
@@ -172,20 +165,21 @@ textarea[typeof='text'] {
 }
 
 .select-item h2{
-  height: 22px;
-  line-height: 22px;
+  height: 18px;
+  line-height: 18px;
   font-style: normal;
   font-weight: 400;
-  font-size: 22px;
+  font-size: 18px;
   margin: 1px;
+  margin-top: 5px;
 }
 
 .select-item p{
-  height: 15px;
-  line-height: 15px;
+  height: 12px;
+  line-height: 12px;
   font-style: normal;
   font-weight: 400;
-  font-size: 15px;
+  font-size: 12px;
   margin: 1px;
 }
 
@@ -196,4 +190,50 @@ textarea[typeof='text'] {
   justify-content: center;
   align-items: center;
   color: white;
+}
+
+.history {
+  height: 500px;
+  width: 200px;
+  background: #191919;
+  position: absolute;
+  top: 76px;
+  left: 0px;
+  z-index: 10000;
+  border-radius: 16px;
+  overflow-y: scroll;
+  scrollbar-width: thin;
+  scrollbar-color: #777 #eee;
+}
+.history-header {
+  background: #333437;
+  color: white;
+  font-family: 'Outfit', sans-serif;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+}
+.prompt-history {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 10px;
+  color: white;
+  font-family: 'Outfit', sans-serif;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.prompt-history:hover{
+  background: #555;
+}
+
+.prompt-history-text {
+  font-size: 15px;
+  margin-left: 5px;
+  width: 150px;
+  align-items: center;
+  color:#EFEFEF
 }

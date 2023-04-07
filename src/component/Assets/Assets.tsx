@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import './Assets.css'
 
-export const Assets =(props: {assets: any}) =>{
+export const Assets =(props: {assets: any, setValue: any}) =>{
   const [type, setType] = useState("NFT")
   useEffect(()=> {
     console.log(props?.assets)
@@ -15,6 +15,12 @@ export const Assets =(props: {assets: any}) =>{
       setType(assetstype)
     }
   }
+  function handleTransfer (index) {
+    return function(event) {
+      event.preventDefault();
+      props.setValue(`Transfer ${props?.assets?.token[index].symbol} to`)
+    }
+  }
   const renderImageRows = () => {
     let rawData = props?.assets?.nft?.content;
     console.log(rawData)
@@ -24,7 +30,7 @@ export const Assets =(props: {assets: any}) =>{
         <tr key={i}>
           {rawData.slice(i, i + 3).map((item, index) => (
             <td key={index}><a href={`https://opensea.io/assets/ethereum/${item.contract_address}/${item.token_id}`} target="_blank"><img 
-            src={item?.image_uri.startsWith("https://")? item.image_uri: `https://ipfs.io/ipfs/${item.image_uri}`} alt={item.token_uri} style={{width:"100px", cursor:"pointer"}}
+            src={item?.image_uri.startsWith("https://")? item.image_uri: `https://ipfs.io/ipfs/${item.image_uri}`} alt={item.token_uri} style={{width:"115px", cursor:"pointer"}}
             onError={handleError}
             /></a></td>
           ))}
@@ -62,6 +68,7 @@ export const Assets =(props: {assets: any}) =>{
           <tr>
             <th>Token</th>
             <th>Balance</th>
+            <th>Operation</th>
           </tr>
         </thead>
         <tbody>
@@ -69,15 +76,12 @@ export const Assets =(props: {assets: any}) =>{
             <tr key={index} className="list">
               <td>{item.symbol}</td>
               <td>{parseInt(item.balance)/(10 ** item.decimals)}</td>
+              <td><button onClick={handleTransfer(index)}>Transfer</button></td>
             </tr>
           ))}
         </tbody>
     </table>}
   </div>
 )}
-
-
-
-
 
 

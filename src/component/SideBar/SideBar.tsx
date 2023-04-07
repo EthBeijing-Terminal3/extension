@@ -11,7 +11,7 @@ import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { GlobalsContext } from "../../globalContext";
 import apiClient from "../../service/api";
-import WarningBar from "../warningBar/WarningBar";
+import WarningBar from "../WarningBar/WarningBar";
 
 const createKeccakHash = require('keccak')
 

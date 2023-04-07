@@ -4,7 +4,8 @@
   display: flex;
   align-items: center;
   padding-bottom: 10px;
-  text-align: left
+  text-align: left;
+  width: 360px;
 }
 
 .message-main {

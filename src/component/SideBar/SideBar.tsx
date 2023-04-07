@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { FaAngleDoubleLeft } from 'react-icons/fa';
 import './style.css';
 
@@ -10,7 +10,10 @@ import { ethers } from "ethers";
 
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
+import { GlobalsContext } from "../../globalContext";
 export const SideBar = () => {
+
+  const global = useContext(GlobalsContext);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isChat, setIsChat] = useState(false);
 
@@ -54,6 +57,7 @@ export const SideBar = () => {
     let address = await signer?.getAddress();
     if (address) {
       setIsChat(!isChat)
+      global.setAccountAddress(address)
     }
   }
 

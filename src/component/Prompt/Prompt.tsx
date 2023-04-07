@@ -1,9 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from "react";
 import './Prompt.css';
 import { AiOutlineMenu, AiOutlineSend} from 'react-icons/ai'
+import apiClient from '../../service/api';
+import { GlobalsContext } from "../../globalContext";
 
 
 export const Prompt = (): JSX.Element => {
+
+  const global = useContext(GlobalsContext);
+
   const [value, setValue] = useState<string>('');
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [messages, setMessages] = useState([]);
@@ -16,13 +21,17 @@ export const Prompt = (): JSX.Element => {
     }
   }, []);
 
-  useEffect(() => {
-    console.log(messages)
-  }, [messages])
   function handleFormSubmit() {
     if (value) {
-      console.log(value)
       setMessages([...messages, value]);
+
+      console.log({account: global.accountAddress, value})
+      apiClient.chat(global.accountAddress, value).then((res) => {
+
+        // TODO: transfer actions into tx object
+        console.log({chatres: res})
+      })
+
       setValue('');
     }
   }

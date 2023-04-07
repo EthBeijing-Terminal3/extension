@@ -6,6 +6,7 @@ import { GlobalsContext } from "../../globalContext";
 import { Message } from "../Message/Message";
 import { getNFT } from "../../service/nft";
 import { getTOKEN } from "../../service/token";
+import { judge } from "../../service/operation";
 
 const CODE = [
   '/assets',
@@ -13,7 +14,7 @@ const CODE = [
 ]
 
 const helloworld = {
-  Comment: "Hello! I am Terminal3, an all-in-one chat bot for web3 beginners created by TraFinity Labs. I'm here to help you with any questions or concerns you may have about navigating the world of web3. How can I assist you today?",
+  Comment: "Hello! I am Terminal3, an all-in-one chat bot for web3 users. How can I assist you today?"
 }
 
 export const Prompt = (): JSX.Element => {
@@ -66,7 +67,12 @@ export const Prompt = (): JSX.Element => {
         apiClient.chat(global.accountAddress, value).then((res) => {
           setMessages([...messages, value, res])
           // TODO: transfer actions into tx object
-          console.log({chatres: res})
+          judge({res}).then((response)=>{
+            setLoading(false)
+            console.log(response)
+          })
+        }).catch((err)=> {
+          console.log(err);
           setLoading(false)
         })
       }

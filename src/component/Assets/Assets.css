@@ -2,7 +2,7 @@
   width: 360px;
   color: white;
   font-family: 'Outfit', sans-serif;
-  margin-left: 20px;
+  margin-left: 10px;
   margin-bottom: 10px;
 }
 .table-header{
@@ -26,6 +26,14 @@
 
 .table-tabs p:hover {
   color: #9e9797
+}
+
+table {
+  border:1px solid #6f7270;
+}
+
+table tr:hover {
+  background: #575555;
 }
 
 

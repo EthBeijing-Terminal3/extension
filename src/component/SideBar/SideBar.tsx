@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from "react";
 import { FaAngleDoubleLeft } from 'react-icons/fa';
 import './style.css';
 
-import { DappBar } from "../DappBar/DappBar";
 import { Prompt } from "../Prompt/Prompt";
 import createMetaMaskProvider from "metamask-extension-provider";
 import { ethers } from "ethers";

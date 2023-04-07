@@ -24,7 +24,7 @@ export const Assets =(props: {assets: any}) =>{
         <tr key={i}>
           {rawData.slice(i, i + 3).map((item, index) => (
             <td key={index}><a href={`https://opensea.io/assets/ethereum/${item.contract_address}/${item.token_id}`} target="_blank"><img 
-            src={`https://ipfs.io/ipfs/${item.image_uri}`} alt={item.token_uri} style={{width:"100px", cursor:"pointer"}}
+            src={item?.image_uri.startsWith("https://")? item.image_uri: `https://ipfs.io/ipfs/${item.image_uri}`} alt={item.token_uri} style={{width:"100px", cursor:"pointer"}}
             onError={handleError}
             /></a></td>
           ))}
@@ -66,9 +66,9 @@ export const Assets =(props: {assets: any}) =>{
         </thead>
         <tbody>
           {props?.assets?.token?.map((item, index) => (
-            <tr key={index}>
+            <tr key={index} className="list">
               <td>{item.symbol}</td>
-              <td>{parseInt(item.balance)}</td>
+              <td>{parseInt(item.balance)/(10 ** item.decimals)}</td>
             </tr>
           ))}
         </tbody>

@@ -5,6 +5,7 @@ import { ethers } from "ethers";
 import UNISWAP_ABI from "../const/UNISWAP_ABI";
 
 const UNISWAP_CONTRACT = "0x7a250d5630b4cf539739df2c5dacb4c659f2488d";
+const WETH = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
 const token_base_abi = [
 	{
 		inputs: [],
@@ -22,7 +23,7 @@ interface params {
 	token?: string; // 要购买的合约地址
 	onTokenWillGet?: (minTokenAmountAndName: any) => any;  // 获取滑点计算后可买到的token的数量和名字
 	onStart?: () => any; // 开始回调，可用于开启loading等操作
-	onSuccess?: (tx: string) => any; // 成功回调，参数为交易哈希，可用于关闭loading并提示
+	onSuccess?: (successInfo: any) => any; // 成功回调，参数为交易哈希，可用于关闭loading并提示
 	onFail?: (reason: any) => any; // 失败回调，参数为失败原因，可用于关闭loading并提示
 }
 const uniswap = async ({ slippage = 15, onTokenWillGet, number, token, onStart, onSuccess, onFail }: params) => {
@@ -60,7 +61,7 @@ const uniswap = async ({ slippage = 15, onTokenWillGet, number, token, onStart, 
 	let res = await provider?.provider?.enable();
 	let signer = provider.getSigner();
 	let address = await signer?.getAddress();
-	const tokenIn = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
+	const tokenIn = WETH;
 	const router = new ethers.Contract(UNISWAP_CONTRACT, UNISWAP_ABI, signer);
 	//We buy x amount of the new token for our bnb
 	const amountIn = ethers.utils.parseUnits(number + "", "ether");
@@ -70,13 +71,14 @@ const uniswap = async ({ slippage = 15, onTokenWillGet, number, token, onStart, 
 	const amountOutMin = amounts[1].sub(amounts[1].div(slippage));
 	let token_contract = new ethers.Contract(token, token_base_abi, signer);
 	const decimals = await token_contract.decimals();
-	const name = await token_contract.name();
+	const tokenName = await token_contract.name();
 	// let contract = new ethers.Contract(tokenIn, abi, signer);
 	// const balanceRes = await contract.balanceOf(address)
 	// const balance = +ethers.utils.formatUnits(balanceRes,decimals)
+	const amountGet = +ethers.utils.formatUnits(amountOutMin, decimals)
 	onTokenWillGet?.({
-    amount: +ethers.utils.formatUnits(amountOutMin, decimals),
-    name
+    amount: amountGet,
+    tokenName
   });
 	// if(balance < +number) {
 	// 	return onFail?.('Insufficient Balance') 
@@ -93,7 +95,14 @@ const uniswap = async ({ slippage = 15, onTokenWillGet, number, token, onStart, 
 			}
 		);
 		const receipt = await tx.wait();
-		onSuccess?.(receipt.transactionHash)
+		onSuccess?.({
+			tx: receipt.transactionHash,
+			tokenName,
+			tokenContract: token,
+			from: address,
+			cost: number,
+			amount: amountGet
+		});
 	} catch (error) {
 		onFail?.(error.toString())
 	}

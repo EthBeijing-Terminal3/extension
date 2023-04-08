@@ -1,22 +1,11 @@
 import createMetaMaskProvider from "metamask-extension-provider";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
+import TCG_ABI from "../const/TCG_ABI";
 
-const ETHERS_API_KEY = "S726K8NJK1D9CYRQIGGGP9SCHN6NT6ZY2E";
-const ETHERS_API_URL = "https://api.etherscan.io/api";
-const abi = [
-	{
-		inputs: [
-			{ name: "_to", type: "address" },
-			{ name: "_value", type: "uint256" },
-		],
-		name: "transfer",
-		outputs: [],
-		payable: false,
-		stateMutability: "nonpayable",
-		type: "function",
-	},
+const TCG_CONTRACT = "0x05c0a4ad31ccbdcbc61c53f09f4cc428066fd80a";
+const token_base_abi = [
 	{
 		inputs: [],
 		name: "decimals",
@@ -25,25 +14,15 @@ const abi = [
 		stateMutability: "view",
 		type: "function",
 	},
-	{
-		inputs: [{ name: "who", type: "address" }],
-		name: "balanceOf",
-		outputs: [{ name: "", type: "uint256" }],
-		payable: false,
-		stateMutability: "view",
-		type: "function",
-	},
-	{ inputs: [], name: "name", outputs: [{ name: "", type: "string" }], payable: false, stateMutability: "view", type: "function" },
+	{ constant: true, inputs: [], name: "name", outputs: [{ name: "", type: "string" }], payable: false, stateMutability: "view", type: "function" },
 ];
 interface params {
-	targetAddress?: string; //收款人地址，如 "0xAFA573F3D14862c3D4Eedd4cef38097271950000"
-	number: number | string; // 发送金额，如 0.01
-	token?: string; // 发送的代币合约地址，如果是发送eth则不填。
-	onStart?: (tokenName: string) => any; // 开始回调，可用于开启loading等操作
-	onSuccess?: (successInfo: any) => any; // 成功回调，参数为交易哈希，可用于关闭loading并提示
+	onTokenWillGet?: (minTokenAmountAndName: any) => any;  // 获取滑点计算后可买到的token的数量和名字
+	onStart?: () => any; // 开始回调，可用于开启loading等操作
+	onSuccess?: (tx: string) => any; // 成功回调，参数为交易哈希，可用于关闭loading并提示
 	onFail?: (reason: any) => any; // 失败回调，参数为失败原因，可用于关闭loading并提示
 }
-const transfer = async ({ targetAddress, number, token, onStart, onSuccess, onFail }: params) => {
+const mint = async ({ onTokenWillGet, onStart, onSuccess, onFail }: params) => {
 	const providerOptions = {
 		"custom-metamsk": {
 			display: {
@@ -78,65 +57,15 @@ const transfer = async ({ targetAddress, number, token, onStart, onSuccess, onFa
 	let res = await provider?.provider?.enable();
 	let signer = provider.getSigner();
 	let address = await signer?.getAddress();
-
-
-	if (token) {
-		let contract = new ethers.Contract(token, abi, signer);
-		const decimals = await contract.decimals();
-		// How many tokens?
-		let numberOfTokens = ethers.utils.parseUnits(number + "", decimals.toNumber());
-		const balanceRes = await contract.balanceOf(address)
-		const tokenName = await contract.name()
-		const balance = +ethers.utils.formatUnits(balanceRes,decimals)
-	
-		if(balance < +number) {
-			return onFail?.('Insufficient Balance') 
-		}
-		// Send tokens
-		try {
-			onStart?.(tokenName);
-			const res = await contract.transfer(targetAddress, numberOfTokens);
-			const confirmations = await res.wait();
-			onSuccess?.({
-				tx: confirmations.transactionHash,
-				tokenName,
-				tokenContract: token,
-				from: address,
-				to: targetAddress,
-				amount: number
-			});
-			return confirmations.transactionHash
-		} catch (error) {
-			onFail?.(error.toString());
-		}
-	} else {
-		let balanceRes = await signer?.getBalance()
-		const balance = +ethers.utils.formatEther( balanceRes )
-		if(balance < +number) {
-			return onFail?.('Insufficient Balance') 
-		}
-		const tx = {
-			from: address,
-			to: targetAddress,
-			value: ethers.utils.parseEther(number + ""),
-		};
-
-		try {
-			onStart?.('ETH');
-			const res = await signer.sendTransaction(tx);
-			const confirmations = await res.wait();
-			onSuccess?.({
-				tx: confirmations.transactionHash,
-				tokenName: 'ETH',
-				from: address,
-				to: targetAddress,
-				amount: number
-			});
-			return confirmations.transactionHash
-		} catch (error) {
-			onFail?.(error.toString());
-		}
+	const router = new ethers.Contract(TCG_CONTRACT, TCG_ABI, signer);
+	try {
+		onStart?.()
+		const tx = await router.mint(address, 1, {value: BigNumber.from('1000000000000000')})
+		const receipt = await tx.wait();
+		onSuccess?.(receipt.transactionHash)
+	} catch (error) {
+		onFail?.(error.toString())
 	}
 };
 
-export default transfer;
+export default mint;

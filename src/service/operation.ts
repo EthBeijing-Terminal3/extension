@@ -49,20 +49,6 @@ export async function judge(chatres: any) {
       mint({
         onFail: reject,
         onSuccess: resolve,
-        onSuccess: (res) => {
-          resolve({
-            ...res,
-            title: 'transaction'
-          })
-        },
-      })
-    })
-  }
-  if (action == "nft_mint" && chatres.Parameters?.contract_address) {
-    return new Promise((resolve,reject) => {
-      mint({
-        onFail: reject,
-        onSuccess: resolve,
       })
     })
   }

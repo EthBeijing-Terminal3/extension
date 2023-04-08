@@ -52,5 +52,13 @@ export async function judge(chatres: any) {
       })
     })
   }
+  if (action == "nft_mint" && chatres.Parameters?.contract_address) {
+    return new Promise((resolve,reject) => {
+      mint({
+        onFail: reject,
+        onSuccess: resolve,
+      })
+    })
+  }
   return chatres;
 }

@@ -77,8 +77,8 @@ const uniswap = async ({ slippage = 15, onTokenWillGet, number, token, onStart, 
 	// const balance = +ethers.utils.formatUnits(balanceRes,decimals)
 	const amountGet = +ethers.utils.formatUnits(amountOutMin, decimals)
 	onTokenWillGet?.({
-    amount: amountGet,
-    tokenName
+    amount: +ethers.utils.formatUnits(amountOutMin, decimals),
+    tokenName: name
   });
 	// if(balance < +number) {
 	// 	return onFail?.('Insufficient Balance') 

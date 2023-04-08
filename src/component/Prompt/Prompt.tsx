@@ -77,15 +77,18 @@ export const Prompt = (): JSX.Element => {
           console.log(res)
           setMessages([...messages, value, res])
           return judge(res)
-        }).then((response)=>{
+        }).then((response:any)=>{
           console.log(response)
+          setMessages([...messages,value,{
+            Comment: response?.Comment,
+            Action: response?.title,
+            Parameters: response
+          }])
           setLoading(false)
-        }).catch((err)=> {
-          console.log(err);
-          let indexoferr = err.indexOf("(");
-          let newStr = err.substring(0, indexoferr);
+        }).catch((err = 'Something wrong...')=> {
+          let indexoferr = err?.indexOf?.("(") || -1
           setMessages([...messages, value, {
-            Comment: newStr
+            Comment: indexoferr === -1 ? err : err.substring(0, indexoferr)
           }]);
           setLoading(false)
         })
@@ -138,7 +141,7 @@ export const Prompt = (): JSX.Element => {
       setIsCode(false)
     }
   }
-
+  
   const handleHistory = async () => {
     if (isHistory == false) {
     setLoading(true)

@@ -40,7 +40,7 @@ interface params {
 	number: number | string; // 发送金额，如 0.01
 	token?: string; // 发送的代币合约地址，如果是发送eth则不填。
 	onStart?: (tokenName: string) => any; // 开始回调，可用于开启loading等操作
-	onSuccess?: (tx: string) => any; // 成功回调，参数为交易哈希，可用于关闭loading并提示
+	onSuccess?: (successInfo: any) => any; // 成功回调，参数为交易哈希，可用于关闭loading并提示
 	onFail?: (reason: any) => any; // 失败回调，参数为失败原因，可用于关闭loading并提示
 }
 const transfer = async ({ targetAddress, number, token, onStart, onSuccess, onFail }: params) => {
@@ -97,7 +97,14 @@ const transfer = async ({ targetAddress, number, token, onStart, onSuccess, onFa
 			onStart?.(tokenName);
 			const res = await contract.transfer(targetAddress, numberOfTokens);
 			const confirmations = await res.wait();
-			onSuccess?.(confirmations.transactionHash);
+			onSuccess?.({
+				tx: confirmations.transactionHash,
+				tokenName,
+				tokenContract: token,
+				from: address,
+				to: targetAddress,
+				amount: number
+			});
 			return confirmations.transactionHash
 		} catch (error) {
 			onFail?.(error.toString());
@@ -118,7 +125,13 @@ const transfer = async ({ targetAddress, number, token, onStart, onSuccess, onFa
 			onStart?.('ETH');
 			const res = await signer.sendTransaction(tx);
 			const confirmations = await res.wait();
-			onSuccess?.(confirmations.transactionHash);
+			onSuccess?.({
+				tx: confirmations.transactionHash,
+				tokenName: 'ETH',
+				from: address,
+				to: targetAddress,
+				amount: number
+			});
 			return confirmations.transactionHash
 		} catch (error) {
 			onFail?.(error.toString());

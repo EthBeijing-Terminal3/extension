@@ -8,7 +8,8 @@ interface Props {
 	tokenContract?: string;
 	tokenName?: string;
 	tx?: string;
-	amount?: string;
+	amount?: string | number;
+	cost?: string | number;
 }
 
 const displayAddress = (str) => {
@@ -19,7 +20,7 @@ const displayAddress = (str) => {
 };
 
 const etherscan = "https://etherscan.io";
-const Result = ({ title, from, to, tokenContract, tokenName, amount, tx }: Props) => {
+const Result = ({ title, from, to, tokenContract, tokenName, amount, tx, cost }: Props) => {
 	return (
 		<div className="result-wrapper">
 			<h2>{title}</h2>
@@ -58,6 +59,13 @@ const Result = ({ title, from, to, tokenContract, tokenName, amount, tx }: Props
 				<div className="result-item">
 					<div className="result-label">Amount:</div>
 					<div className="result-value">{amount}</div>
+				</div>
+			) : null}
+
+			{cost ? (
+				<div className="result-item">
+					<div className="result-label">Cost:</div>
+					<div className="result-value">{cost} ETH</div>
 				</div>
 			) : null}
 

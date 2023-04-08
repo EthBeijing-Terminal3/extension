@@ -22,6 +22,7 @@
   background: #333437;
   border-radius: 12px;
   padding: 6px 18px;
+  color: #fff;
 }
 .result-wrapper a {
   text-decoration: underline;

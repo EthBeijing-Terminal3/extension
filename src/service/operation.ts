@@ -20,7 +20,12 @@ export async function judge(chatres: any) {
         number: chatres.Parameters.value,
         token: TOKENMAP[chatres.Parameters.asset],
         onFail: reject,
-        onSuccess: resolve,
+        onSuccess: (res) => {
+          resolve({
+            ...res,
+            title: 'transaction'
+          })
+        }
       })
     })
   } else 
@@ -30,7 +35,12 @@ export async function judge(chatres: any) {
         number: chatres.Parameters.value,
         token: TOKENMAP[chatres.Parameters.output_asset],
         onFail: reject,
-        onSuccess: resolve,
+        onSuccess: (res) => {
+          resolve({
+            ...res,
+            title: 'transaction'
+          })
+        },
       })
     })
   }
@@ -42,4 +52,5 @@ export async function judge(chatres: any) {
       })
     })
   }
+  return chatres;
 }

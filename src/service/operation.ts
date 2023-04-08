@@ -49,6 +49,12 @@ export async function judge(chatres: any) {
       mint({
         onFail: reject,
         onSuccess: resolve,
+        onSuccess: (res) => {
+          resolve({
+            ...res,
+            title: 'transaction'
+          })
+        },
       })
     })
   }

@@ -85,9 +85,8 @@ export const Prompt = (): JSX.Element => {
             Parameters: response
           }])
           setLoading(false)
-        }).catch((err)=> {
-          console.log(err);
-          let indexoferr = err.indexOf("(");
+        }).catch((err = 'Something wrong...')=> {
+          let indexoferr = err?.indexOf?.("(") || -1
           setMessages([...messages, value, {
             Comment: indexoferr === -1 ? err : err.substring(0, indexoferr)
           }]);

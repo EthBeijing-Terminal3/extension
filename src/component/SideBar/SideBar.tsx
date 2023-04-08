@@ -36,28 +36,36 @@ export const SideBar = () => {
   const global = useContext(GlobalsContext);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isChat, setIsChat] = useState(false);
-
+  const [contractAnalyze, setContractAnalyze] = useState({});
   const [warning, setWarning] = useState(null);
 
   useEffect(() => {
     window.addEventListener('message', async (event) => {
       if (event.data?.name === 'terminal-3') {
-        console.log({d: event.data})
         const data = JSON.parse(event.data.payload);
-
         console.log({d2: data});
         if (data.requestType === "eth_sendTransaction") {
-          apiClient.transactionAnalysis(
-            'https://' + window.location.hostname,
-            data.payload.data,
+          // apiClient.transactionAnalysis(
+          //   'https://' + window.location.hostname,
+          //   data.payload.data,
+          //   data.payload.from,
+          //   data.payload.to,
+          //   data.payload.value,
+          //   data.payload.gas,
+          //   toChecksumAddress(data.payload.from),
+          // ).then((res) => {
+          //   console.log({res});
+          //   setWarning(res);
+          // });
+          apiClient.contractAnalyze(
             data.payload.from,
             data.payload.to,
-            data.payload.value,
-            data.payload.gas,
-            toChecksumAddress(data.payload.from),
+            "1"
           ).then((res) => {
             console.log({res});
-            setWarning(res);
+            setContractAnalyze(res);
+            setIsExpanded(true);
+            // setWarning(res);
           });
         }
       }
@@ -126,7 +134,7 @@ export const SideBar = () => {
         {isExpanded ?
           <div className="sidebar-content">
             {isChat ? 
-              <Prompt/>
+              <Prompt contractAnalyze={contractAnalyze}/>
              :
               <div className="welcome">
                 <div className="main-header">

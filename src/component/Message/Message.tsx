@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import "./Message.css";
 import { Assets } from "../Assets/Assets";
+
 import Result from "../Result";
+import { ContractInfo } from "../ContractInfo/ContractInfo";
 
 type MESSAGE = {
 	action: string;
@@ -24,6 +26,8 @@ export const Message = (props: { index: number; message: any; back?: MESSAGE; se
 			</div>
 			{props.back?.action == "assets" ? <Assets assets={props?.back?.arg} setValue={props.setValue} /> : null}
 			{props.back?.action == "transaction" ? <Result {...props.back?.arg} /> : null}
+      {props.back?.action == "contractanalyze"?
+      <ContractInfo back={props?.back}/>:null}
 		</div>
 	);
 };

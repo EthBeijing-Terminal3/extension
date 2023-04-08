@@ -24,10 +24,9 @@ const goodprompt = [
   "swap 1 WETH to 1ETH on uniswap"
 ]
 
-export const Prompt = (): JSX.Element => {
+export const Prompt = (props:any): JSX.Element => {
 
   const global = useContext(GlobalsContext);
-
   const [value, setValue] = useState<string>('');
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [messages, setMessages] = useState<any[]>([helloworld]);
@@ -42,6 +41,17 @@ export const Prompt = (): JSX.Element => {
       textareaRef.current.focus();
     }
   }, []);
+  console.log('props.contractAnalyze', props.contractAnalyze);
+  useEffect(() => {
+    if ((props.contractAnalyze) && (JSON.stringify(props.contractAnalyze) != "{}")) {
+      // console.log('props.contractAnalyze', props.contractAnalyze);
+      setMessages([...messages, 'contract information' ,{
+        Comment: "Here are the contract information",
+        Action: "contractanalyze",
+        Parameters: props.contractAnalyze,
+      }]);
+    }
+  }, [props.contractAnalyze]);
 
   async function handleFormSubmit() {
     let assMessage =  {

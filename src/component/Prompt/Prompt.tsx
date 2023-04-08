@@ -141,16 +141,16 @@ export const Prompt = (): JSX.Element => {
       setIsCode(false)
     }
   }
-  
+
+  const onlyUnique = (value, index, self) => self.indexOf(value) === index;
+
   const handleHistory = async () => {
     if (isHistory == false) {
     setLoading(true)
     await apiClient.chat(global.accountAddress, "history").then((res) => {
-      console.log(res)
       let newHistory = historyList
       res.Parameters.map((item, index)=> {newHistory.push(item.content)})
-      console.log(newHistory)
-      setHistoryList(newHistory)
+      setHistoryList([...newHistory.filter(onlyUnique)])
       setLoading(false)
     })
   }

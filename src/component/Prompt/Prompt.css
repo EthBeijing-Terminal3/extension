@@ -137,6 +137,7 @@ textarea[typeof="text"] {
 .message-ul ul {
   /* overflow-y: scroll; */
   overflow: auto;
+  padding-left: 0;
 }
 
 .code-select {

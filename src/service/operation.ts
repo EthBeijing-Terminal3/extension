@@ -1,3 +1,4 @@
+import mint from "./mint";
 import transfer from "./transfer";
 import uniswap from "./uniswap";
 
@@ -15,9 +16,9 @@ export async function judge(chatres: any) {
   if (action == "token_transfer") {
     return new Promise((resolve,reject) => {
       transfer({
-        targetAddress: chatres.Parameters.To_address,
-        number: chatres.Parameters.Value,
-        token: TOKENMAP[chatres.Parameters.Asset],
+        targetAddress: chatres.Parameters.to_address,
+        number: chatres.Parameters.value,
+        token: TOKENMAP[chatres.Parameters.asset],
         onFail: reject,
         onSuccess: resolve,
       })
@@ -28,6 +29,14 @@ export async function judge(chatres: any) {
       uniswap({
         number: chatres.Parameters.value,
         token: TOKENMAP[chatres.Parameters.output_asset],
+        onFail: reject,
+        onSuccess: resolve,
+      })
+    })
+  }
+  if (action == "nft_mint" && chatres.Parameters?.contract_address) {
+    return new Promise((resolve,reject) => {
+      mint({
         onFail: reject,
         onSuccess: resolve,
       })

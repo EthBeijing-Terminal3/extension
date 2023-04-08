@@ -33,12 +33,13 @@ const abi = [
 		stateMutability: "view",
 		type: "function",
 	},
+	{ inputs: [], name: "name", outputs: [{ name: "", type: "string" }], payable: false, stateMutability: "view", type: "function" },
 ];
 interface params {
 	targetAddress?: string; //收款人地址，如 "0xAFA573F3D14862c3D4Eedd4cef38097271950000"
 	number: number | string; // 发送金额，如 0.01
 	token?: string; // 发送的代币合约地址，如果是发送eth则不填。
-	onStart?: () => any; // 开始回调，可用于开启loading等操作
+	onStart?: (tokenName: string) => any; // 开始回调，可用于开启loading等操作
 	onSuccess?: (tx: string) => any; // 成功回调，参数为交易哈希，可用于关闭loading并提示
 	onFail?: (reason: any) => any; // 失败回调，参数为失败原因，可用于关闭loading并提示
 }
@@ -85,20 +86,21 @@ const transfer = async ({ targetAddress, number, token, onStart, onSuccess, onFa
 		// How many tokens?
 		let numberOfTokens = ethers.utils.parseUnits(number + "", decimals.toNumber());
 		const balanceRes = await contract.balanceOf(address)
+		const tokenName = await contract.name()
 		const balance = +ethers.utils.formatUnits(balanceRes,decimals)
-		console.log({balance})
+	
 		if(balance < +number) {
 			return onFail?.('Insufficient Balance') 
 		}
 		// Send tokens
 		try {
-			onStart?.();
+			onStart?.(tokenName);
 			const res = await contract.transfer(targetAddress, numberOfTokens);
 			const confirmations = await res.wait();
 			onSuccess?.(confirmations.transactionHash);
 			return confirmations.transactionHash
 		} catch (error) {
-			onFail?.(error);
+			onFail?.(error.toString());
 		}
 	} else {
 		let balanceRes = await signer?.getBalance()
@@ -113,6 +115,7 @@ const transfer = async ({ targetAddress, number, token, onStart, onSuccess, onFa
 		};
 
 		try {
+			onStart?.('ETH');
 			const res = await signer.sendTransaction(tx);
 			const confirmations = await res.wait();
 			onSuccess?.(confirmations.transactionHash);

@@ -5,6 +5,7 @@ import { ethers } from "ethers";
 import UNISWAP_ABI from "../const/UNISWAP_ABI";
 
 const UNISWAP_CONTRACT = "0x7a250d5630b4cf539739df2c5dacb4c659f2488d";
+const WETH = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
 const token_base_abi = [
 	{
 		inputs: [],
@@ -60,7 +61,7 @@ const uniswap = async ({ slippage = 15, onTokenWillGet, number, token, onStart, 
 	let res = await provider?.provider?.enable();
 	let signer = provider.getSigner();
 	let address = await signer?.getAddress();
-	const tokenIn = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
+	const tokenIn = WETH;
 	const router = new ethers.Contract(UNISWAP_CONTRACT, UNISWAP_ABI, signer);
 	//We buy x amount of the new token for our bnb
 	const amountIn = ethers.utils.parseUnits(number + "", "ether");
@@ -76,7 +77,7 @@ const uniswap = async ({ slippage = 15, onTokenWillGet, number, token, onStart, 
 	// const balance = +ethers.utils.formatUnits(balanceRes,decimals)
 	onTokenWillGet?.({
     amount: +ethers.utils.formatUnits(amountOutMin, decimals),
-    name
+    tokenName: name
   });
 	// if(balance < +number) {
 	// 	return onFail?.('Insufficient Balance') 

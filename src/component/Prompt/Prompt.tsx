@@ -62,7 +62,7 @@ export const Prompt = (): JSX.Element => {
             assMessage.token = res
           })
           setMessages([...messages, value, {
-            Comment: "Here is your assets 😊",
+            Comment: "Here are your assets 😊",
             Action: "assets",
             Parameters: assMessage
           }]);
@@ -82,8 +82,10 @@ export const Prompt = (): JSX.Element => {
           setLoading(false)
         }).catch((err)=> {
           console.log(err);
+          let indexoferr = err.indexOf("(");
+          let newStr = err.substring(0, indexoferr);
           setMessages([...messages, value, {
-            Comment: err
+            Comment: newStr
           }]);
           setLoading(false)
         })
